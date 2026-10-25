@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # desktop-study-companion
 
 An Electron application with React and TypeScript
@@ -32,3 +33,6 @@ $ npm run build:mac
 # For Linux
 $ npm run build:linux
 ```
+=======
+# desktop-study-companion
+>>>>>>> 61be22d5f7b539cbf63383236c611d4fea2a9ca5
