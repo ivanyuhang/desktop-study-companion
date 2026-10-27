@@ -1,22 +1,31 @@
-import { contextBridge } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
-
-// Custom APIs for renderer
-const api = {}
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
+import { contextBridge, ipcRenderer } from 'electron'
+import type { CompanionAPI, AppSnapshot, PetId } from '../shared/models'
+if (process.argv.includes('--pet-window')) {
+  contextBridge.exposeInMainWorld('petAPI', {
+    snapshot: () => ipcRenderer.invoke('pet:state'),
+    close: () => ipcRenderer.invoke('pet:close'),
+    subscribe: (listener: (pet: PetId) => void) => {
+      const handler = (_event: Electron.IpcRendererEvent, pet: PetId): void => listener(pet)
+      ipcRenderer.on('pet:changed', handler)
+      return () => {
+        ipcRenderer.removeListener('pet:changed', handler)
+      }
+    }
+  })
 } else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+  const api: CompanionAPI = {
+    snapshot: () => ipcRenderer.invoke('companion:snapshot'),
+    dispatch: (command) => ipcRenderer.invoke('companion:command', command),
+    subscribe: (listener) => {
+      const handler = (_event: Electron.IpcRendererEvent, snapshot: AppSnapshot): void =>
+        listener(snapshot)
+      ipcRenderer.on('companion:changed', handler)
+      return () => {
+        ipcRenderer.removeListener('companion:changed', handler)
+      }
+    },
+    pet: (show) => ipcRenderer.invoke('companion:pet', show)
+  }
+  contextBridge.exposeInMainWorld('api', api)
+  contextBridge.exposeInMainWorld('electron', { process: { versions: process.versions } })
 }

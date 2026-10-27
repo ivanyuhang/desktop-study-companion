@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: com.studycompanion.desktop
 productName: desktop-study-companion
 directories:
   buildResources: build

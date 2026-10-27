@@ -1,3 +1,4 @@
+import ForestPanel from './forest/ForestPanel'
 import type { ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -17,7 +18,7 @@ export default function PlaceholderCard({
   className = ''
 }: PlaceholderCardProps): React.JSX.Element {
   return (
-    <section className={`placeholder-card ${className}`.trim()}>
+    <ForestPanel className={`placeholder-card ${className}`.trim()}>
       <div className="card-heading">
         <span className="card-icon" aria-hidden="true">
           <Icon size={19} strokeWidth={1.9} />
@@ -28,6 +29,6 @@ export default function PlaceholderCard({
         </div>
       </div>
       <div className="card-content">{children}</div>
-    </section>
+    </ForestPanel>
   )
 }
